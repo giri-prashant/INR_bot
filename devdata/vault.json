@@ -1,0 +1,41 @@
+{
+    "smartvista":{
+        "username":"sbl_rpamaker",
+        "password":"Rpa@12345678",
+        "url":"https://182.93.86.2:7006/SVWI/login.jsf"
+    },
+    "finacle_entry":{
+        "url":"https://uatwas.siddharthabank.com:44444/fininfra/ui/SSOLogin.jsp",
+        "username":"RPA1",
+        "password":"Uat@1234"
+    },
+    "finacle_approve":{
+        "url":"https://uatwas.siddharthabank.com:44444/fininfra/ui/SSOLogin.jsp",
+        "username":"RPA2",
+        "password":"Uat@1234"
+    },
+    "sbl_mis":{
+        "url" :"https://10.60.103.3:44444/xmlpserver/Finacle+Reports/Common+Reports/Daily+Transaction+Report/Daily+Transaction+Report.xdo",
+        "username":"finbranch",
+        "password":"finbranch"
+    },
+    "ftp":{
+        "username":"psd",
+        "password":"psd123",
+        "server":"192.168.100.17",
+        "port":21
+    },   
+    "psd_database_prepaid_card":{
+        "username" : "fcjglhist",
+        "password" : "fcjglhist",
+        "host_name" : "192.168.0.1",
+        "port" : "1521",
+        "service" : "SBLDB"
+    },
+    "smtp":{
+        "account":"ram.sharma@sbl.com.np",
+        "password":"@Python1",
+        "port":"25",
+        "server":"192.168.100.2"
+    }
+}
