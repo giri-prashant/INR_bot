@@ -8,10 +8,11 @@ from Excel_component import ExcelComponent
 from FTP_Component import FTPComponent
 from qrlib.QRUtils import get_secret, display
 import Constants
-from datetime import datetime
+from datetime import datetime,timedelta
 from Utils import (
     delete_files_in_folder,
-    check_file_downloaded_or_not
+    check_file_downloaded_or_not,
+    generate_report_name
 )
 
 class DefaultProcess(QRProcess):
@@ -38,30 +39,59 @@ class DefaultProcess(QRProcess):
         run_item: QRRunItem = kwargs["run_item"]
         self.notify(run_item)
         logger = run_item.logger
-
         delete_files_in_folder(logger,Constants.download_path)
+        
         current_date = datetime.now()
         year = current_date.strftime("%Y")
         month = current_date.strftime("%B").lower()
         day = current_date.strftime("%d")
-        report_directory = f'DAILY REPORT SBL 14_{Constants.DATE}'
-        # year_directory = year
-        # month_directory = f"{year}/{month}"
-        # day_directory = f"{year}/{month}/{day}"
-        # report_dir = f"{year}/{month}/{day}/{report_directory}"
-        path = f"{year}/{month}/{day}/{report_directory}/{report_directory}"
-        with self.ftp_component as ftp:
-            ftp.set_cwd(path)
-            ftp.list_and_download_dailyreport(Constants.download_path)
+        try:
+            report_directory = generate_report_name(numb=0)
+            path = f"{year}/{month}/{day}/{report_directory}/{report_directory}"
+            file_name = f'CPD_Issuing_SBL {report_directory.split()[-1]}.xlsx'
+            display(f"from default procee {file_name}")
+            with self.ftp_component as ftp:
+                ftp.set_cwd(path)
+                ftp.list_and_download_dailyreport(Constants.download_path, file_name)
+                
+            check_file_downloaded_or_not(logger,'.xlsx')
+            file_name= check_file_downloaded_or_not(logger, '.xlsx')
+            print(f"Downloaded file name: {file_name}")
             
-        check_file_downloaded_or_not(logger,'.xlsx')
-        
+        except Exception as e1:
+            print(f"First attempt failed: {str(e1)}")
+            for i in range(1, 10):
+                try:
+                    report_directory = generate_report_name(numb=i)
+                    path = f"{year}/{month}/{day}/{report_directory}/{report_directory}"
+                    file_name = f'CPD_Issuing_SBL {report_directory.split()[-1]}.xlsx'
+                    with self.ftp_component as ftp:
+                        ftp.set_cwd(path)
+                        ftp.list_and_download_dailyreport(Constants.download_path, file_name)
+                    
+                    file_name = check_file_downloaded_or_not(logger, '.xlsx')
+                    print(f"Downloaded file name: {file_name}")
+                    break  
+
+                except Exception as e2:
+                    print(f"Attempt {i} failed: {str(e2)}")
+                    if i == 10:
+                        print("All attempts failed. No file downloaded.")
+
 
     @run_item(is_ticket=False, post_success=False)
     def before_run_item(self, *args, **kwargs):
         run_item = QRRunItem(is_ticket=True)
         self.notify(run_item)
         logger = run_item.logger
+        
+        amount = self.excel_component.read_excel_file()
+        self.finacle_component.open_finacle()
+        self.finacle_component.login()
+        self.finacle_component.navigate_to_hxfer()
+        self.finacle_component.transfer_trans_value(amount)
+        self.finacle_component.logout()
+        self.finacle_component.close_browser()
 
         
         run_item.report_data["Process Status"] = f" Ticket Generation and FTP upload Complete"
@@ -123,7 +153,7 @@ class DefaultProcess(QRProcess):
         run_item: QRRunItem = kwargs["run_item"]
         self.notify(run_item)
 
-        # self.finacle_component.logout()
+        self.finacle_component.logout()
         # self.smartvista_component.logout_smartvista()
         # self.finacle_component.close_browser()
  

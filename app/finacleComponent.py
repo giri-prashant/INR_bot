@@ -78,6 +78,47 @@ class finaclecomponent(QRComponent):
         except Exception as e:
             logger.error(f'error logging')
             logger.error(f'{e}')
+            
+    def transfer_trans_value(self,amount):
+        logger = self.run_item.logger
+        xpath = {
+            'transaction_type': '//select[@id="tranTypeSubType"]', 
+            'function_type' : '//select[@id="funcCode"]',
+            'click_go' : '//input[@id="Go"]'
+        }
+        
+        logger.info(f"selecting transaction ..")    
+        self.browser.select_from_list_by_value(xpath['function_type'],value="A")
+        self.browser.select_from_list_by_value(xpath['transaction_type'],value="T/BI")
+        self.wait_and_click(xpath['click_go'])
+        self.post_amount_in_cbs(dr_cr="cr",amount=amount)
+        self.wait_and_click(xpath['next'])
+        self.post_amount_in_cbs(dr_cr="dr",amount=amount)
+        self.wait_and_click(xpath['save'])
+
+    def post_amount_in_cbs(self,dr_cr,amount):
+        Date_format =Constants.NARR_DATE
+        narration = f"INR FEE {Date_format}"
+        
+        xpath = {
+            'click_credit': '//input[@id="pTranType"][2]',
+            'click_debit': '//input[@id="pTranType"][1]',
+            'acc_id': '//input[@id="acctId"]',
+            'amount_click': '//input[@id="refAmt"]',
+            'next' : '//img[@id="partTranDetail_NextRec"]',
+            'save': '//input[@id="Save"]',
+            'transaction_desc': '//input[@id="tranParticular"]'
+        }
+        if(dr_cr == 'cr'):
+            self.wait_and_click(xpath['click_credit'])
+        else:
+            self.wait_and_click(xpath['click_debit'])
+            self.browser.input_text(xpath['acc_id'],)
+            self.browser.input_text(xpath['amount_click'],amount)
+            self.browser.input_text(xpath['transaction_desc'],narration)
+        
+        
+        
 
     def upload_batch(self):
         display('inside search upload')
@@ -191,21 +232,22 @@ class finaclecomponent(QRComponent):
 
 
 
-    def navigate_to_httum(self):
+    def navigate_to_hxfer(self):
         logger = self.run_item.logger if hasattr(self, 'run_item') else self.logger
         try:
             xpath={
                 'frame_path':'//*[@id="SSODiv"]/iframe[@name="loginFrame"]',
                 'menu_selector_path':'//div[@id="widget_menuSelect"]',
                 'menu_input_path':'//input[@id="menuSelect"]',
-                'menu_SearchBtn_path':'//button[@id="menuSearcherGo"]'
+                'menu_SearchBtn_path':'//button[@id="menuSearcherGo"]',
+                
             }
             
             self.browser.unselect_frame()
             self.wait_and_select_frame(xpath['frame_path'])
             self.wait_and_click(xpath['menu_selector_path'])
             time.sleep(1)
-            self.wait_and_input(xpath['menu_input_path'],'httum')
+            self.wait_and_input(xpath['menu_input_path'],'hxfer')
             time.sleep(1)
             # self.browser.press_keys(xpath['menu_selector_path'],"enter")
             self.wait_and_click(xpath['menu_SearchBtn_path'])

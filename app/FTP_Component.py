@@ -119,11 +119,10 @@ class FTPComponent(QRComponent):
             self.__ftp.storbinary(f'STOR {filename}', file)
         logger.info(f'File uploaded successfully to {file_path}')
         
-    def list_and_download_dailyreport(self, download_dir):
-        """
-        List all files in the FTP server and download files with '.xls' extension to the specified directory. CARD ISSUANCE SBL 12062024
-        """
-        file_name = f'CPD_Issuing_SBL 14_{Constants.DATE}.xlsx'
+    def list_and_download_dailyreport(self, download_dir,file_name):
+        logger = self.run_item.logger
+        logger.info(f'downloading file from FTP {file_name}')
+        
         display(file_name)
         logger = self.run_item.logger
         listed_data = self.__ftp.nlst()
@@ -134,6 +133,8 @@ class FTPComponent(QRComponent):
         with open(local_file_path, 'wb') as local_file:
             self.__ftp.retrbinary(f'RETR {file_name}', local_file.write)
             logger.info(f"Downloaded {file_name} to {local_file_path}")
+            
+        logger.info(f'downloaded file from FTP {file_name}')
 
     
     def upload_file_and_delete(self, local_path, filename):
@@ -150,7 +151,7 @@ class FTPComponent(QRComponent):
 
     def create_directory_if_not_exists(self, directory):
         try:
-             self.__ftp.cwd(directory)
+            self.__ftp.cwd(directory)
         except:
-           self.__ftp.mkd(directory)
-           self.__ftp.cwd(directory)
+            self.__ftp.mkd(directory)
+            self.__ftp.cwd(directory)

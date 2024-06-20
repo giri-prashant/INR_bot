@@ -1,4 +1,5 @@
 
+from datetime import datetime, timedelta
 from glob import glob
 import subprocess
 import time
@@ -77,3 +78,16 @@ def close_chrome():
             if percent >=65:
                 print("taskkill")
                 subprocess.run(['taskkill', '/pid', f'{item["pid"]}', '/f'])
+                
+def generate_report_name(numb):
+    today_date = datetime.now()
+    one_day_ago = today_date - timedelta(days=1)
+    DATE = one_day_ago.strftime("%d%m%Y")
+
+    delta_day = today_date -timedelta(days=numb)
+    formatted_delta_day = delta_day.strftime('%d')
+    if(numb == 0):
+        report_directory = f'DAILY REPORT SBL {DATE}'
+    else:
+        report_directory = f'DAILY REPORT SBL {formatted_delta_day}_{DATE}'
+    return report_directory

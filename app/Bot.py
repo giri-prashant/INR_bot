@@ -14,13 +14,12 @@ class Bot(QRBot):
         self.setup_platform_components()
         self.process.before_run()
 
-        # self.process.before_run_item()
+        self.process.before_run_item()
         # self.process.execute_run()
 
 
 
         # self.process.after_run_item()
-
 
 
 
