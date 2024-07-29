@@ -88,8 +88,8 @@ class finaclecomponent(QRComponent):
         }
         
         logger.info(f"selecting transaction ..")    
-        self.browser.select_from_list_by_value(xpath['function_type'],value="A")
-        self.browser.select_from_list_by_value(xpath['transaction_type'],value="T/BI")
+        self.browser.select_from_list_by_value(xpath['function_type'],"A")
+        self.browser.select_from_list_by_value(xpath['transaction_type'],"T/BI")
         self.wait_and_click(xpath['click_go'])
         self.post_amount_in_cbs(dr_cr="cr",amount=amount)
         self.wait_and_click(xpath['next'])
